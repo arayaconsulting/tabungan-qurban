@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Tabungan Qurban</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f6f9; font-family: system-ui, -apple-system, sans-serif; }
+        .card { border-radius: 12px; border: none; }
+        .footer-araya { border-top: 1px solid #e3e6f0; background-color: #ffffff; padding: 25px 0; margin-top: 50px; }
+    </style>
+</head>
+<body>
+    <div class="container py-4">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                
+                <div class="card shadow-sm mb-3">
+                    <div class="card-body text-center">
+                        <span class="text-muted small uppercase fw-bold" style="letter-spacing: 1px;">Shohibul Qurban</span>
+                        <h3 class="fw-bold text-success my-1">{{ user.nama }}</h3>
+                        <span class="badge bg-light text-dark border">Target Paket: Rp {{ "{:,}".format(user.target_harga) }}</span>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm mb-3">
+                    <div class="card-body">
+                        <label class="fw-bold text-secondary small">Akumulasi Tabungan ({{ persen }}%)</label>
+                        <div class="progress my-2" style="height: 24px;">
+                            <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" style="width: {{ persen }}%">
+                                <strong>Rp {{ "{:,}".format(total) }}</strong>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between small text-muted">
+                            <span>Sisa Kekurangan:</span>
+                            <span class="fw-bold text-danger">Rp {{ "{:,}".format(sisa) }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                  {% if messages %}
+                    {% for category, message in messages %}
+                      <div class="alert alert-{{ category }} text-center small" role="alert">{{ message }}</div>
+                    {% endfor %}
+                  {% endif %}
+                {% endwith %}
+
+                <div class="card shadow-sm mb-3">
+                    <div class="card-header bg-success text-white fw-bold py-3">📝 Konfirmasi Setoran Baru</div>
+                    <div class="card-body">
+                        <form action="/setor" method="POST">
+                            <div class="mb-3">
+                                <label class="form-label text-secondary small">Jumlah Uang Tunai/Transfer (Rp)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Rp</span>
+                                    <input type="number" name="nominal" class="form-control form-control-lg" placeholder="Contoh: 250000" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-success btn-lg w-100 shadow-sm">Kirim Laporan Dana</button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm">
+                    <div class="card-header bg-dark text-white fw-bold">📜 Histori Mutasi Anda</div>
+                    <div class="list-group list-group-flush">
+                        {% for s in user.setoran %}
+                        <div class="list-group-item d-flex justify-content-between align-items-center py-3">
+                            <div>
+                                <h6 class="fw-bold mb-0">Rp {{ "{:,}".format(s.nominal) }}</h6>
+                                <small class="text-muted">{{ s.tanggal.strftime('%d %B %Y') }}</small>
+                            </div>
+                            {% if s.status == 'Disetujui' %}
+                                <span class="badge bg-success px-3 py-2">Disetujui</span>
+                            {% elif s.status == 'Ditolak' %}
+                                <span class="badge bg-danger px-3 py-2">Ditolak</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark px-3 py-2">Pending</span>
+                            {% endif %}
+                        </div>
+                        {% else %}
+                        <div class="p-4 text-center text-muted small">Belum ada riwayat setoran.</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a href="/admin" class="text-decoration-none text-muted small">🔒 Masuk Panel Bendahara</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer-araya">
+        <div class="container text-center">
+            <div class="mb-2">
+                <span class="fw-bold text-success" style="letter-spacing: 2px;">ARAYA CONSULTING</span>
+            </div>
+            <p class="text-muted small mx-auto" style="max-width: 500px; line-height: 1.6;">
+                Aplikasi ini dikembangkan oleh <strong>Araya Consulting</strong> dalam rangka mendukung kelancaran pengelolaan ibadah qurban dan menebar kemaslahatan bagi ummat.
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
